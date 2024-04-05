@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 Django = "^5.0.2"
+django-ratelimit = "^4.1.0"
 
 
 [build-system]

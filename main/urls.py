@@ -15,8 +15,10 @@ urlpatterns = [
     #todo: 6
     path("owasp7_insecure", views.owasp7_insecure, name="index"),
     path("owasp7_secure", views.owasp7_secure, name="index"),
-    #todo: 8
+    path("owasp8_insecure", views.owasp8_insecure, name="index"),
+    path("owasp8_secure", views.owasp8_secure, name="index"),
     path("owasp9_insecure", views.owasp9_insecure, name="index"),
     path("owasp9_secure", views.owasp9_secure, name="index"),
-    #todo: 10
+    path("owasp10_insecure", views.owasp10_insecure, name="index"),
+    path("owasp10_secure", views.owasp10_secure, name="index"),
 ]

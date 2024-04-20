@@ -1,18 +1,22 @@
+import hashlib
 import logging
+import pickle
 
 from django.contrib.auth.models import User
 from django.db import connection
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-from django_ratelimit.decorators import ratelimit
+import requests
 
+from django_ratelimit.decorators import ratelimit
+from django import forms
 
 def index(request):
     return HttpResponse("Hello, world")
 
 
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 
@@ -99,6 +103,39 @@ def owasp7_secure(request):
     else:
         return render(request, 'signin.html')
 
+def owasp8_insecure(request):
+    try:
+        # Get the uploaded file from the request
+        uploaded_file = request.FILES['file']
+        
+        # Save the file to the server without integrity verification
+        # file_path = save_uploaded_file(uploaded_file)
+        
+        return JsonResponse({'success': 'File uploaded successfully'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+def owasp8_secure(request):
+    try:
+        # Get the uploaded file from the request
+        uploaded_file = request.FILES['file']
+        
+        # Calculate the checksum of the uploaded file
+        sha256_hash = hashlib.sha256()
+        for chunk in uploaded_file.chunks():
+            sha256_hash.update(chunk)
+        calculated_checksum = sha256_hash.hexdigest()
+        
+        # Verify the integrity of the file by comparing checksums
+        if calculated_checksum == request.POST.get('checksum'):
+            # Save the file to the server
+            # file_path = save_uploaded_file(uploaded_file)
+            return JsonResponse({'success': 'File uploaded successfully'})
+        else:
+            return JsonResponse({'error': 'Checksum mismatch'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 def owasp9_insecure(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -131,3 +168,33 @@ def owasp9_secure(request):
             return HttpResponse("Invalid login attempt.")
     else:
         return render(request, 'signin.html')
+
+def owasp10_insecure(request):
+    try:
+        # Get the URL of the external API from the request parameters
+        api_url = request.GET.get('api_url')
+        # return HttpResponse(api_url)
+        response = requests.get("https://"+api_url)
+
+        if response.status_code == 200:
+            data = response.json()
+            return JsonResponse(data)
+        else:
+            return JsonResponse({'error': 'Failed to fetch data from API'}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def owasp10_secure(request):
+    try:
+        # URL of the trusted external API
+        api_url = 'https://swapi.dev/api/people/1/'
+    
+        response = requests.get(api_url)
+        
+        if response.status_code == 200:
+            data = response.json()
+            return JsonResponse(data)
+        else:
+            return JsonResponse({'error': 'Failed to fetch data from API'}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

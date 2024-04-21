@@ -1,18 +1,15 @@
 import hashlib
 import logging
-import pickle
 
-from django.contrib.auth.models import User
-from django.db import connection
-from django.shortcuts import get_object_or_404
-from django.utils.timezone import now
-from django.contrib.auth.forms import PasswordChangeForm
+import requests
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-import requests
-
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import User
+from django.db import connection
+from django.utils.timezone import now
 from django_ratelimit.decorators import ratelimit
-from django import forms
+
 
 def index(request):
     return HttpResponse("Hello, world")
@@ -188,8 +185,8 @@ def owasp9_secure(request):
 
         user = authenticate(username=username, password=password)
         if user is not None:
+            logger.warning(f"Successful login for user: {username}, IP: {ip_address}, Time: {attempt_time}")
             login(request, user)
-            logger.info(f"Successful login for user: {username}, IP: {ip_address}, Time: {attempt_time}")
             return HttpResponse("Logged in successfully.")
         else:
             logger.warning(f"Failed login attempt for username: {username}, IP: {ip_address}, Time: {attempt_time}")

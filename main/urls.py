@@ -7,12 +7,14 @@ urlpatterns = [
     path('signin/', views.signin, name='signin'),
     path("owasp1_insecure", views.owasp1_insecure, name="index"),
     path("owasp1_secure", views.owasp1_secure, name="index"),
-    #todo: 2
+    path("owasp2_insecure", views.change_password_insecure, name="change_password_insecure"),
+    path("owasp2_secure", views.change_password_secure, name="change_password_secure"),
+
     path("owasp3_insecure", views.owasp3_insecure, name="index"),
     path("owasp3_secure", views.owasp3_secure, name="index"),
     #todo: 4
     # owasp 5 done in settings files
-    #todo: 6
+    # owasp 6 done in manage.py
     path("owasp7_insecure", views.owasp7_insecure, name="index"),
     path("owasp7_secure", views.owasp7_secure, name="index"),
     path("owasp8_insecure", views.owasp8_insecure, name="index"),

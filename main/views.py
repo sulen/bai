@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 from django.db import connection
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 import requests
 
 from django_ratelimit.decorators import ratelimit
@@ -46,6 +49,31 @@ def owasp1_secure(request):
         return HttpResponse("Unauthorized")
 
     return HttpResponse(f"Hello, {request.user.email}")
+
+@login_required(login_url="signin/")
+def change_password_secure(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Secure password hash
+            update_session_auth_hash(request, user)  
+            return redirect('signin/')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'change_password.html', {'form': form})
+
+@login_required(login_url="signin/")
+def change_password_insecure(request):
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        # Insecure password hashing
+        hashed_password = hashlib.md5(new_password.encode()).hexdigest()
+        request.user.password = hashed_password
+        request.user.save()
+        return redirect('signin/')
+    return render(request, 'change_password_insecure.html')
+
 
 # http://localhost:8000/main/owasp3_insecure?product_name=product1
 # http://localhost:8000/main/owasp3_insecure?product_name=product1='; DROP TABLE delete_me; --
